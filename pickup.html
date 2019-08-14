@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pickups!</title>
+    <link rel='stylesheet' type='text/css' href='sdk/map.css'/>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+    <script src='sdk/tomtom.min.js'></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="getLocation.js"></script>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBaf0EsfuN-5N3MZ821r_KOVGi8qEBDuD0",
+            authDomain: "trash-6d859.firebaseapp.com",
+            databaseURL: "https://trash-6d859.firebaseio.com",
+            projectId: "trash-6d859",
+            storageBucket: "trash-6d859.appspot.com",
+            messagingSenderId: "132374483374"
+        };
+        firebase.initializeApp(config);
+    </script>
+    <script>
+        let map;
+        $(document).ready(function(){
+            map = tomtom.L.map('map', {
+                key: 'Dz3Ei5WzQ1UJ7MoGZ2lHAr4dU3CX7jFx'
+            });
+            firebase.firestore().collection("posts").get().then((posts) => {
+                posts.forEach((post) => {
+                    console.log(post);
+                    let lat = post.data().lat;
+                    let lon = post.data().lon;
+                    addPoint(lat, lon);
+                })
+            }).catch((err) => {
+                console.log(err);
+            })
+        });
+        // function loadMarkers() {
+        //     firebase.firestore().collection("posts").get().then((posts) => {
+        //         posts.forEach((post) => {
+        //             console.log(post);
+        //             let lat = post.data().coords.lat;
+        //             let lon = post.data().coords.lon;
+        //             addPoint(lat, lon);
+        //         })
+        //     })
+        //}
+        function addPoint(lat, lon) {
+            var markerOptions = {
+                icon: tomtom.L.icon({
+                    iconUrl: 'sdk/images/marker-green.png',
+                    iconSize: [30, 34],
+                    iconAnchor: [15, 34]
+                })
+            };
+
+            tomtom.L.marker([lat, lon], markerOptions).addTo(map);
+
+        }
+
+    </script>
+</head>
+<body>
+<div class="container">
+    <nav style="height: 110px; padding-top:5px; background-color: lightgoldenrodyellow">
+        <div class="nav-wrapper">
+            <a href="#!" class="brand-logo"><img src="img/logo.png"></a>
+            <ul class="right hide-on-med-and-down">
+                <li><a class="waves-effect waves-light btn" href="about.html"
+                       style="background-color: #ee4957">About</a></li>
+                <li><a class="waves-effect waves-light btn" href="pickup.html"
+                       style="background-color: #ee4957">Pickups</a></li>
+                <li><a class="waves-effect waves-light btn" href="recycle.html" style="background-color: #ee4957">Recycle</a>
+                </li>
+                <li><a class="waves-effect waves-light btn" href="feed.html"
+                       style="padding-left: 25px; padding-right: 25px; background-color: #ee4957">Feed</a></li>
+            </ul>
+        </div>
+    </nav>
+    <h4 class="center-align" style="margin-bottom: -20px">Pickups Near You</h4>
+    <form>
+        <label for="Location">Enter location:</label>
+        <input type="text" id="Location" location="Location" placeholder="5 Wentworth St, Hanover, NH 03755"><br>
+    </form>
+
+
+    <input type="button" value="Submit" onclick="positionMap()"/>
+
+    <div class="row">
+        <div class="col s12 offset-s3">
+            <div id='map' style='height:500px;width:500px'></div>
+        </div>
+    </div>
+
+    <a class="waves-effect waves-blue btn-small view" style="position: absolute; right: 10px; top: 10px;
+background-color: lightskyblue" href="login.html">Log Out</a>
+</div>
+</body>
+</html>
+

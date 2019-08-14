@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feed</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+    <script src='sdk/tomtom.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <script src="getLocation.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBaf0EsfuN-5N3MZ821r_KOVGi8qEBDuD0",
+            authDomain: "trash-6d859.firebaseapp.com",
+            databaseURL: "https://trash-6d859.firebaseio.com",
+            projectId: "trash-6d859",
+            storageBucket: "trash-6d859.appspot.com",
+            messagingSenderId: "132374483374"
+        };
+        firebase.initializeApp(config);
+    </script>
+    <script>
+        $(document).ready(function(){
+            //ready
+        });
+
+        let currentUser = '';
+        let userFirstName = '';
+        let userLastName = '';
+        let postings = [];
+        $( document ).ready(function() {
+            currentUser = sessionStorage.getItem("username");
+            userFirstName = sessionStorage.getItem("firstName");
+            userLastName = sessionStorage.getItem("lastName");
+            console.log(currentUser, userFirstName, userLastName);
+            loadFeed();
+        });
+
+        function loadFeed() {
+            firebase.firestore().collection("posts").orderBy("date", "desc").get().then((posts) => {
+                console.log(posts);
+                posts.forEach((post) => {
+                    postings.push(post.data());
+                })
+            }).then(() => {
+                loadTable();
+            }).catch((err) => {
+                console.log(err);
+            })
+        }
+
+        function loadTable() {
+
+            for (let post of postings) {
+                let row = document.createElement('a');
+                row.className += 'row center';
+                row.setAttribute('href', '#eventInfoModal');
+                row.setAttribute('rel', 'modal:open');
+                row.onclick = function () {
+                    openEventModal(post)
+                };
+                let col = document.createElement('div');
+                col.className += 'col s12 m6';
+                col.style = "color: #6a808b; text-decoration: underline; cursor: pointer";
+                let blueGrey = document.createElement('div');
+                blueGrey.className += 'card green darken-1 hoverable';
+                let cardCont = document.createElement('div');
+                cardCont.className += 'card-content white-text';
+                let title = document.createElement('span');
+                title.className += 'card-title';
+                title.innerText = post.name;
+                let text = document.createElement('p');
+                text.innerText = post.description;
+                let loc = document.createElement('b');
+                loc.innerText = post.location;
+                let cardEnd = document.createElement('div');
+                cardEnd.className += 'card-action';
+                let date = document.createElement('a');
+                date.href = '#';
+                date.innerText = post.date;
+                let time = document.createElement('a');
+                time.href = '#';
+                time.innerText = post.time;
+
+                cardEnd.appendChild(date);
+                cardEnd.appendChild(time);
+                row.appendChild(col);
+                col.appendChild(blueGrey);
+                blueGrey.appendChild(cardCont);
+                cardCont.appendChild(title);
+                cardCont.appendChild(text);
+                cardCont.appendChild(loc);
+                cardCont.appendChild(cardEnd);
+                document.getElementById('main').appendChild(row);
+            }
+        }
+
+        function openEventModal(post) {
+             $('#modalTitle').html(post.name);
+            $('#modalDate').html(post.date);
+            $('#modalTime').html(post.time);
+            $('#modalLoc').html(post.location);
+            $('#modalDesc').html(post.description);
+        }
+
+        function onAddPickup() {
+            let pickupName = $('#evName').val();
+            let pickUpLoc = $('#location').val();
+            let pickupDesc = $('#description').val();
+            let pickupDate = $('#dateOn').val();
+            let pickupTime = $('#timePick').val();
+            getCoords(pickUpLoc);
+            setTimeout(() => {
+                console.log(lat, lon);
+                firebase.firestore().collection("posts").add({
+                    name: pickupName,
+                    location: pickUpLoc,
+                    description: pickupDesc,
+                    date: pickupDate,
+                    time: pickupTime,
+                    lat: lat,
+                    lon: lon
+                }).then((resp) => {
+                    console.log(resp);
+                    window.location.reload();
+                }).catch((err) => {
+                    console.log(err);
+                })
+            }, 300);
+
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <a class="btn-floating btn-large waves-effect waves-light red right"
+       style="margin-top: 85px; padding-top:6px; margin-right: 10px;" href="#addEventModal" rel="modal:open"><img src="img/plus.png"></a>
+
+    <nav style="height: 110px; padding-top:5px; background-color: lightgoldenrodyellow">
+        <div class="nav-wrapper">
+            <a href="#!" class="brand-logo"><img src="img/logo.png"></a>
+            <ul class="right hide-on-med-and-down">
+                <li><a class="waves-effect waves-light btn" href="about.html" style="background-color: #ee4957">About</a></li>
+                <li><a class="waves-effect waves-light btn" href="pickup.html" style="background-color: #ee4957">Pickups</a></li>
+                <li><a class="waves-effect waves-light btn" href="recycle.html" style="background-color: #ee4957">Recycle</a></li>
+                <li><a class="waves-effect waves-light btn" href="feed.html" style="padding-left: 25px; padding-right: 25px; background-color: #ee4957">Feed</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="row">
+        <div class="col s12 offset-s3">
+            <div id="main" class="center"></div>
+        </div>
+    </div>
+
+
+</div>
+
+<div id="addEventModal" class="modal">
+    <h5>Add New Trash Pickup</h5>
+    <div class="row">
+        <form class="col s12">
+            <div class="row">
+                <div class="input-field col s6">
+                    <input id="evName" type="text" class="validate">
+                    <label for="evName">Event Name</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="location" type="text" class="validate">
+                    <label for="location">Location</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <textarea id="description" class="validate"></textarea>
+                    <label for="description">Pickup Description</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input type="text" id="dateOn" class="datepicker">
+                    <label for="dateOn">Date</label>
+                </div>
+                <div class="input-field col s6">
+                    <input type="text" id="timePick" class="timepicker">
+                    <label for="timePick">Time</label>
+                </div>
+            </div>
+            <a class="waves-effect waves-purple btn view" onclick="onAddPickup()">Add</a>
+        </form>
+    </div>
+    <a href="#" rel="modal:close">Close</a>
+</div>
+
+<div id="eventInfoModal" class="modal">
+    <h4 id="modalTitle"></h4>
+    <div class="row">
+        <div class="chip" id="modalTime"></div>
+        <div class="chip" id="modalDate"></div>
+        <div class="chip" id="modalLoc"></div>
+    </div>
+    <p id="modalDesc"></p>
+    <h5>Who's going...?</h5>
+    <div class="chip">
+        <img src="img/profile1.png" alt="Contact Person">
+        John Doe
+    </div>
+    <div class="chip">
+        <img src="img/profile3.png" alt="Contact Person">
+        Jane Doe
+    </div>
+    <div class="chip">
+        <img src="img/profile2.png" alt="Contact Person">
+        Jim Doe
+    </div>
+    <br><br>
+    <a href="#" rel="modal:close">Close</a>
+</div>
+
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<a class="waves-effect waves-blue btn-small view" style="position: absolute; right: 10px; top: 10px;
+background-color: lightskyblue" href="login.html">Log Out</a>
+</body>
+</html>

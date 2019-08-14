@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log In/Sign Up</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyBaf0EsfuN-5N3MZ821r_KOVGi8qEBDuD0",
+            authDomain: "trash-6d859.firebaseapp.com",
+            databaseURL: "https://trash-6d859.firebaseio.com",
+            projectId: "trash-6d859",
+            storageBucket: "trash-6d859.appspot.com",
+            messagingSenderId: "132374483374"
+        };
+        firebase.initializeApp(config);
+    </script>
+    <script>
+        function onSignUp() {
+            // Store
+            let firstName = $('#first_name').val()
+            let lastName = $('#last_name').val();
+            let userName = $('#usernameSignUp').val();
+            let passWord = $('#passwordSignUp').val();
+            firebase.firestore().collection("users").doc(userName).set({
+                firstName: firstName,
+                lastName: lastName,
+                userName: userName,
+                passWord: passWord
+            }).then(() => {
+                sessionStorage.setItem("username", userName);
+                sessionStorage.setItem("firstName", firstName);
+                sessionStorage.setItem("lastName", lastName);
+                window.location = 'feed.html';
+            }).catch((err) => {
+                console.log(err);
+            })
+        }
+
+        function onSignIn() {
+            let username = $('#username').val();
+            let password = $('#password').val();
+            firebase.firestore().collection("users").doc(username).get().then((doc) => {
+                if (doc.exists) {
+                    if (doc.data().passWord == password) {
+                        sessionStorage.setItem("username", username);
+                        sessionStorage.setItem("firstName", doc.data().firstName);
+                        sessionStorage.setItem("lastName", doc.data().lastName);
+                        window.location = 'feed.html';
+                    } else {
+                        alert("Incorrect password");
+                    }
+                } else {
+                    alert("No such user");
+                }
+            }).catch((err) => {
+                console.log(err);
+            })
+        }
+
+    </script>
+
+    <script>
+    window.snapKitInit = function () {
+        var loginButtonIconId = 'my-login-button-target';
+        // Mount Login Button
+        snap.loginkit.mountButton(loginButtonIconId, {
+            clientId: '0bd79c44-83df-4f62-86dc-465687c35522',
+            redirectURI: 'feed.html',
+            scopeList: [
+                'user.display_name',
+                'user.bitmoji.avatar',
+            ],
+            handleResponseCallback: function() {
+                snap.loginkit.fetchUserInfo()
+                    .then(data => console.log('User info:', data));
+            },
+        });
+    };
+
+    // Load the SDK asynchronously
+    (function (d, s, id) {
+        var js, sjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "https://sdk.snapkit.com/js/v1/login.js";
+        sjs.parentNode.insertBefore(js, sjs);
+    }(document, 'script', 'loginkit-sdk'));
+</script>
+</head>
+
+<body>
+
+
+
+<div class="container">
+    <nav style="height: 110px; padding-top:5px; background-color: lightgoldenrodyellow">
+        <div class="nav-wrapper">
+            <a href="#!" class="brand-logo center"><img src="img/logo.png"></a>
+
+        </div>
+    </nav>
+
+    <div class="row padding" style="margin-top: 20px;">
+
+        <div class="col s4">
+            <div class="card" style="background-color: lightgoldenrodyellow">
+                <div class="card-image">
+                    <img src="http://pluspng.com/img-png/logo-snapchat-png-snapchat-logo-png-600.png"
+                         height="270" width="240">
+                </div>
+                <div class="card-content">
+                    <h4 class="center-align">Sign in with Snapchat</h4>
+                </div>
+                <div class="card-action">
+                    <div id="my-login-button-target"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col s4">
+                <div class="card" style="background-color: lightgoldenrodyellow">
+                    <div class="card-image">
+                        <img src="https://images-na.ssl-images-amazon.com/images/I/51U6m0LHajL._SX425_.jpg"
+                             height="300" width="250">
+                    </div>
+                    <div class="card-content">
+                        <h4 class="center-align">Sign in with TrashTag Account</h4>
+                    </div>
+                    <div class="card-action center-align">
+                        <a class="waves-effect waves-purple btn-large view" href="#signInModal" rel="modal:open" style="background-color: #ee4957">Sign In</a>
+                    </div>
+                </div>
+            </div>
+        <div class="col s4">
+            <div class="card" style="background-color: lightgoldenrodyellow">
+                <div class="card-image">
+                    <img src="http://cdn.onlinewebfonts.com/svg/img_303225.png" height="300" width="300">
+                </div>
+                <div class="card-content">
+                    <h4 class="center-align">Create a TrashTag Account</h4>
+                </div>
+                <div class="card-action center-align">
+                    <!-- Link to open the modal -->
+                    <a class="waves-effect waves-purple btn-large view" href="#signupModal" rel="modal:open" style="background-color: #ee4957">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<div id="signupModal" class="modal">
+    <h5>Sign Up for TrashTag</h5>
+    <div class="row">
+        <form class="col s12">
+            <div class="row">
+                <div class="input-field col s6">
+                    <input id="first_name" type="text" class="validate">
+                    <label for="first_name">First Name</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="last_name" type="text" class="validate">
+                    <label for="last_name">Last Name</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="usernameSignUp" type="email" class="validate">
+                    <label for="usernameSignUp">Username</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-field col s12">
+                    <input id="passwordSignUp" type="password" class="validate">
+                    <label for="passwordSignUp">Password</label>
+                </div>
+            </div>
+            <a class="waves-effect waves-purple btn view" onclick="onSignUp()">Sign Up</a>
+        </form>
+    </div>
+    <a href="#" rel="modal:close">Close</a>
+</div>
+
+<div id="signInModal" class="modal">
+    <h5>Sign In to TrashTag</h5>
+    <div class="row">
+        <form class="col s12">
+            <div class="row">
+                <div class="input-field col s6">
+                    <input id="username" type="text" class="validate">
+                    <label for="username">Username</label>
+                </div>
+                <div class="input-field col s6">
+                    <input id="password" type="password" class="validate">
+                    <label for="password">Password</label>
+                </div>
+            </div>
+            <a class="waves-effect waves-purple btn view" onclick="onSignIn()">Sign In</a>
+        </form>
+    </div>
+    <a href="#" rel="modal:close">Close</a>
+</div>
+
+<script type="text/javascript" src="js/materialize.min.js"></script>
+</body>
+</html>
+
+
+
+
+<!--<div class="row">-->
+    <!--<form class="col s12">-->
+        <!--<div class="row">-->
+            <!--<div class="input-field col s6">-->
+                <!--<input id="first_name" type="text" class="validate">-->
+                <!--<label for="first_name">First Name</label>-->
+            <!--</div>-->
+            <!--<div class="input-field col s6">-->
+                <!--<input id="last_name" type="text" class="validate">-->
+                <!--<label for="last_name">Last Name</label>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="row">-->
+            <!--<div class="input-field col s12">-->
+                <!--<input disabled value="I am not editable" id="disabled" type="text" class="validate">-->
+                <!--<label for="disabled">Disabled</label>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="row">-->
+            <!--<div class="input-field col s12">-->
+                <!--<input id="password" type="password" class="validate">-->
+                <!--<label for="password">Password</label>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="row">-->
+            <!--<div class="input-field col s12">-->
+                <!--<input id="email" type="email" class="validate">-->
+                <!--<label for="email">Email</label>-->
+            <!--</div>-->
+        <!--</div>-->
+        <!--<div class="row">-->
+            <!--<div class="col s12">-->
+                <!--This is an inline input field:-->
+                <!--<div class="input-field inline">-->
+                    <!--<input id="email_inline" type="email" class="validate">-->
+                    <!--<label for="email_inline">Email</label>-->
+                    <!--<span class="helper-text" data-error="wrong" data-success="right">Helper text</span>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</form>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->

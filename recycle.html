@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><title>FAQ</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+
+<nav style="height: 110px; padding-top:5px; background-color: lightgoldenrodyellow">
+    <div class="nav-wrapper">
+        <a href="#!" class="brand-logo"><img src="img/logo.png"></a>
+        <ul class="right hide-on-med-and-down">
+            <li><a class="waves-effect waves-light btn" href="about.html" style="background-color: #ee4957">About</a></li>
+            <li><a class="waves-effect waves-light btn" href="pickup.html" style="background-color: #ee4957">Pickups</a></li>
+            <li><a class="waves-effect waves-light btn" href="recycle.html" style="background-color: #ee4957">Recycle</a></li>
+            <li><a class="waves-effect waves-light btn" href="feed.html" style="padding-left: 25px; padding-right: 25px; background-color: #ee4957">Feed</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class = "bar bar-header">
+    <h1 style="color:darkgreen" class = "title"><center>FAQ</h1></center>
+</div>
+
+<h3 style="color:seagreen"><center> What is trashtag?</center></h3>
+<p><center>
+    Trashtag is an app that was created by a group of three freshmen at McGill and <br>
+    Northeastern University to create communities of people that wish to help clean <br>
+    our planet. Trashtag allows people to arrange trash pick-ups and meet others <br>
+    in their community passionate about the environment.
+    </center> </p>
+
+<h3 style="color:seagreen"> <center> What supplies should be brought to a meetup?</center></h3>
+<p><center>
+    Some supplies we recommend for a meetup are gloves, garbage bags, grabbers, water, and snacks.
+    </center> </p>
+
+<h3 style="color:seagreen"> <center> What does the number inside the recycling symbol mean? Can I recycle this?</center></h3>
+<center><img src="img/domestic_recycling_symbols.jpg" width="357" height="204"></center>
+
+</center> <p><center>
+    The number is the item's Resin Identification Code. It tells you what kind of <br>
+    plastic it is. Numbers 1 and 2 are almost always recyclable. 3,7, and 6 are usually <br>
+    not. Numbers 4 and 5 are only accepted in some recycling centers. You should <br>
+    call your local recycling center to ask if they'll accept these.
+</p>
+
+<h3 style="color:seagreen"><center>  Is this recyclable?</center></h3>
+<p><center>
+    Upload a picture of it to find out!
+    </center> </p>
+
+<form action="/action_page.php"><center>
+    <input type="file" name="pic" accept="image/*" id="pickFile">
+</center></form>
+
+<button onclick="readFile()">Submit File</button>
+
+    <div class="col s12 m7" id="infoPanel" style="display: none">
+        <h2 class="header">Is this Recyclable?</h2>
+        <div class="card horizontal">
+            <div class="card-stacked">
+                <div class="card-content">
+                    <p>This looks recyclable. You should find an appropriate bin to throw it in immediately</p>
+                </div>
+                <div class="card-action">
+                    <a href="https://www.epa.gov/recycle">Learn More About Recycling</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+
+    function sendRequest() {
+        console.log(global);
+
+        $.ajax({
+            type: 'POST',
+            url: 'https://language.googleapis.com/v1/documents:analyzeEntities?key=AIzaSyAEK2up32Us_AgFcvlXRRHCir_hUWWBoyk',
+            data: {
+                "requests":[
+                    {
+                        "image":{
+                            "dataType": 'JSON',
+                            "contentType": "application/json",
+                            "data": JSON.stringify(global),
+                            "content": global
+                        },
+                        "features":[
+                            {
+                                "maxResults": 1
+
+                            }
+                        ]
+                    }
+                ]
+
+            },
+            try: {
+                var:result1 = "",
+               responses:[0][0][1] = result1
+
+            },
+            catch (err) {
+                console.log(err);
+            }
+
+        });
+
+        return result1
+    }
+
+    let global = null;
+
+    function readFile() {
+        document.getElementById("infoPanel").style.display = 'inline';
+
+
+        if (this.files && this.files[0]) {
+
+            const FR= new FileReader();
+
+            FR.addEventListener("load", function(e) {
+                document.getElementById("img").src       = e.target.result;
+                document.getElementById("b64").innerHTML = e.target.result;
+            });
+
+            FR.readAsDataURL( this.files[0] );
+            e.target.result = global;
+            return FR;
+        }
+
+    }
+
+
+    let el = document.getElementById("inp")
+    if (el) {
+        el.addEventListener("change", readFile());
+    }
+
+
+
+    const result = sendRequest();
+
+
+    if (result.includes("plastic") || result.includes("paper")) {
+        document.write("This looks recyclable! :)");
+    } else {
+        "This does not look recyclable. Please throw it away";
+    }
+
+
+
+</script>
+<a class="waves-effect waves-blue btn-small view" style="position: absolute; right: 10px; top: 10px;
+background-color: lightskyblue" href="login.html">Log Out</a>
+</div>
+</body>
+</html>
